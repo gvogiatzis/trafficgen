@@ -1,0 +1,32 @@
+# Hyperparameters
+batch_size: 56  # batch size
+lr: 1e-5  # learning rate
+patience: 5  # patience for  early stopping
+weight_decay: 1.e-11  # weight decay factor
+
+# Network structure
+latent_channels: 80 # number of channels of the volume between the gnn and the cnn
+latent_resolution: [60, 60]  # It can be the latent resolution or grid dimension if the node lattice is used
+dropout: 0.  # dropout for the whole network?
+residual: false # residual connections for the whole network?
+
+networks_params:
+  gnn_model:
+    net: 'gat'
+    alt_feats: 'clusters'  # choose the alternative for the visual features: img, hue, mean, clusters
+    alt: '0' # choose betwen grid 1 or not grid 0
+    gnn_hidden: [120, 90]  # dimension of the gnn hidden layers
+    num_heads: [80, 32]  # size of the attention heads
+    activation: 'tanh'  # activation between the layers
+    final_activation: 'tanh' # activation of the final layer
+    alpha: 0.2892912  # attention parameter
+    attn_drop: 0.  # attention drop
+  cnn_model:
+    cnn_hidden: [50, 25]  # dimension of the cnn hidden layers
+    depth_output: 5  # number of chanels at the output
+    scale_factors: [4, 4, 2]  # scale factors for each of the upsampling layers
+    kernel_sizes: [4, 3, 3]
+    strides: [4, 2, 1]
+    paddings: [4, 3, 1]
+    activation: 'tanh'  # activation between the layers
+    final_activation: None # activation of the final layer

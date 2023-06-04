@@ -20,16 +20,6 @@ def handler(signum, frame):
         exit(1)
 
 signal.signal(signal.SIGINT, handler)
-
-# def get_good_filename(video):
-#     while True:
-#         filename = f'crossroad_{str(video).zfill(6)}.mp4'
-#         if not os.path.isfile(filename):
-#             time.sleep(SMALL_WAIT_TIME)
-#             print(f'Using {filename}')
-#             return filename, video
-#         else:
-#             video += 1
     
     
 def process_browser_log_entry(entry):

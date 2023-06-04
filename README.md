@@ -1,25 +1,49 @@
-# Traffic prediction project
+# Traffic image generation
 
-## Instructions to train SPADE with GNN
+This project uses a combination of GNN layers to condition a cGAN called SPADE for the generation of realistic looking traffic images.
+This combination allows for the conditioning of not only the position of the vehicles and pedestrians in the scene but also their colours and the time of the day.
+Next table show the metrics comparing the original version of SPADE with two of our models trained with different encodings for conditioning the colours.
 
+|      Models      |    FID    |    mIoU    |    Accu.   |
+|:----------------:|:---------:|:----------:|:----------:|
+|   Vanilla SPADE  | 176.32835 | 0.63349355 | 0.70595584 |
+|  cluster-colours | 149.88987 | 0.53274998 | 0.69294361 |
+| discrete-colours | 154.56592 | 0.50205496 | 0.66411157 |
+
+The following image shows the visual results of the images generated:
+
+![Visual results](https://nvlabs.github.io/SPADE//images/visual_results_traffic.png)
+
+## Generate dataset
+
+### Scrapping videos from CCTV camera
+
+
+### Detecting bounding boxes from the videos
 The first step is to generate the txt files with the bounding boxes detected by yolo:
 
 ```bash
 cd yolov7/
-python3 detect.py --weights yolov7.pt --conf 0.15 --img-size 640 --source ../raw_data/images/ --save-txt --save-conf --nosave --classes 5 2 0 7
-python3 detect.py --weights yolov7-w6.pt --conf 0.22 --img-size 1280 --source ../raw_data/images/ --save-txt --save-conf --nosave --classes 5 2 0 7
+python3 detect.py --weights yolov7-w6.pt --conf 0.15 --img-size 1280 --source ../raw_data/images/ --save-txt --save-conf --nosave --classes 5 2 0 7
 ```
+
+
+## Training
+
+
 
 Copy the `label/` folder inside `yolov7/runs/detect/exp/` and paste it in `raw_data/` with the name *"boxes"*.
 Then you have to go to SPADE directory and run the following command:
 
 ```bash
 cd ../SPADE
-python3 train.py --name traffic3d --dataset_mode custom --label_dir ../raw_data/masks/ --image_dir ../raw_data/images/ --label_nc 5 --no_instance --gpu_ids 5 --batchSize 12 --niter 100  --no_flip  --crop_size 512 --load_size 512
-python3 train.py --name traffic3d --dataset_mode custom --label_dir ../raw_data/masks/ --image_dir ../raw_data/images/ --label_nc 5 --no_instance --gpu_ids 5 --batchSize 4 --niter 100  --no_flip  --crop_size 640 --load_size 640
+python3 train.py --name traffic3d --dataset_mode custom --label_dir ../raw_data/masks/ --image_dir ../raw_data/images/ --label_nc 5 --no_instance --gpu_ids 0 --batchSize 6 --niter 100  --no_flip  --crop_size 640 --load_size 640
 ```
+### Training with more than one GPU
 
-## Generate images using the pretrained model.
+For this you have to replace the `data_parallel.py` script in your installation of pytorch (this path: `(your_python)/site-packages/torch/nn/parallel`) with the one provided in the utils directory.
+
+## Testing
 ```bash
 python test.py --name [type]_pretrained --dataset_mode [dataset] --dataroot [path_to_dataset]
 python3 test.py --name traffic3d --dataset_mode custom  --label_dir ../raw_data/masks/ --image_dir ../raw_data/images/ --label_nc 5 --no_instance --gpu_ids 5 --batchSize 24 --crop_size 640 --load_size 640 --project SPADE
@@ -33,6 +57,4 @@ The outputs images are stored at `./results/[type]_pretrained/` by default. You 
 Use `--results_dir` to specify the output directory. `--how_many` will specify the maximum number of images to generate.
 By default, it loads the latest checkpoint. It can be changed using `--which_epoch`.
 
-## For training with more than one GPU
 
-For this you have to replace the `data_parallel.py` script in your installation of pytorch (this path: `(your_python)/site-packages/torch/nn/parallel`) with the one provided in the utils directory.

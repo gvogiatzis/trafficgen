@@ -1,10 +1,10 @@
 import sys
-import cv2
 import binascii
 from collections import namedtuple
 
 import random
 import scipy.cluster
+from skimage.transform import resize
 import torch as th
 import numpy as np
 from PIL import Image
@@ -112,7 +112,7 @@ def get_features_from_bb(alt_feat, original_image, xywh, visualize=False):
     cropped_image = original_image[int(y - h / 2):int(y - h / 2 + h), int(x - w / 2):int(x - w / 2 + w), :]
     if alt_feat == 'img':
         dim = (20, 20)
-        resized = cv2.resize(cropped_image, dim, interpolation=cv2.INTER_AREA)
+        resized = resize(cropped_image, dim)
         features = np.squeeze(resized.flatten() / 255)
     elif alt_feat == 'hue':
         # Get hue channel
@@ -121,7 +121,7 @@ def get_features_from_bb(alt_feat, original_image, xywh, visualize=False):
 
         # Resize all images and flatten them
         dim = (20, 20)
-        resized = cv2.resize(cropped_hue, dim, interpolation=cv2.INTER_AREA)
+        resized = resize(cropped_hue, dim)
         features = np.squeeze(resized.flatten() / 255)
     elif alt_feat == 'mean':
         features = np.mean(cropped_image, axis=(0, 1))
@@ -179,14 +179,14 @@ def get_features_from_bb(alt_feat, original_image, xywh, visualize=False):
         print("Not valid feature alternative.")
         sys.exit(0)
 
-    if visualize:
-        cv2.imshow('Original image', original_image)
-        cv2.imshow('Resized', resized)
-        cv2.imshow('Cropped image', cropped_image)
-        key = cv2.waitKey(3000)  # pauses for 2 seconds before fetching next image
-        if key == 27:
-            cv2.destroyAllWindows()
-            sys.exit(0)
+    # if visualize:
+    #     cv2.imshow('Original image', original_image)
+    #     cv2.imshow('Resized', resized)
+    #     cv2.imshow('Cropped image', cropped_image)
+    #     key = cv2.waitKey(3000)  # pauses for 2 seconds before fetching next image
+    #     if key == 27:
+    #         cv2.destroyAllWindows()
+    #         sys.exit(0)
 
     return features
 

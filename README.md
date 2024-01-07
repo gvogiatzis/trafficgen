@@ -81,12 +81,15 @@ python3 train.py --name traffic3d --dataset_mode custom --label_dir ../raw_data/
 ```
 
 You have the flexibility to define several parameters, such as the model name, GPU id, batch size, and image resolution.
-However, other parameters should remain unchanged. The trained network weights will be stored in the _SPADE/checkpoints/"Model Name"/ directory_.
+However, other parameters should remain unchanged. The trained network weights will be stored in the _SPADE/checkpoints/"Model_Name" directory_.
 
 It's worth noting that the Deep Graph Library (DGL) framework for GNNs and SPADE uses distinct code to parallelize tasks across multiple GPUs.
 Therefore, if you intend to train using more than one GPU, you'll need to replace the `data_parallel.py` script in your PyTorch installation (found at this location: _(your_python)/site-packages/torch/nn/parallel_) with the one available in the _utils_ directory.
 
 ## Testing
+
+
+Before starting the test, make sure that the model is in the directory _./SPADE/checkpoints/"Model_Name"_. Or if you downloaded the pretrained model from [here](https://www.dropbox.com/sh/b9gkygvqsn5m0me/AADYlopO4w1HU_2KKf2496p3a?dl=0), save it in the mentioned directory with the desired model `name` and you can download the specific test data for that model from [here]().
 
 For testing the trained model, you can directly generate images from bounding boxes of various frames.
 This operation will produce images featuring only white cars, simulating a full 24-hour daylight cycle.

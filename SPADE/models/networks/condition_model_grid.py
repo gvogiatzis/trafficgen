@@ -2,7 +2,6 @@ import sys
 import math
 
 import numpy as np
-import cv2
 
 from models.networks.gat import GAT
 from models.networks.tcnn import TCNN

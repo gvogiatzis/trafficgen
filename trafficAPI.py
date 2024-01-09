@@ -1,5 +1,5 @@
 import sys
-from skimage.transform import resize
+import cv2
 
 import numpy as np
 import yaml
@@ -61,6 +61,6 @@ class TrafficAPI(object):
             generated = self.model(data_i, mode='demo')
             final_image = np.squeeze(generated.cpu().detach().numpy())
             final_image = np.moveaxis(final_image, 0, -1)
-            final_image = resize(final_image, IMAGE_SIZE)
+            final_image = cv2.resize(final_image, IMAGE_SIZE, interpolation=cv2.INTER_AREA)
             return final_image
         return None

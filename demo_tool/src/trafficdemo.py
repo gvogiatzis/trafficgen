@@ -65,7 +65,7 @@ class MainWindow(QWidget):
         self.alert.setText("Select a tool please!")
 
         # Init backgrounds of the two pixmap
-        self.background_img = QPixmap("assets/background.jpg")
+        self.background_img = QPixmap("assets/background2.png")
         self.background_img = self.background_img.scaled(IMAGE_SIZE[0], IMAGE_SIZE[1])
         self.input_pixmap = self.background_img.copy()
         self.output_pixmap = QPixmap(IMAGE_SIZE[0], IMAGE_SIZE[1])
@@ -196,9 +196,9 @@ class MainWindow(QWidget):
 
     def onGenerateButtonClicked(self):
         # Add this first element to the list since it is always detected (false positive as reference)
-        data = [[TrafficItem(conf=0.9,
-                             xywh=[0.4927, 0.1745, 0.0344, 0.0528],
-                             cls=SPADE_LABELS['truck'],
+        data = [[TrafficItem(conf=0.1,
+                             xywh=[0., 0., 0., 0.],
+                             cls=SPADE_LABELS['car'],
                              visualFeatures=[0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
                              dayTime=self.day_time)]]
         data[0] = data[0] + self.items

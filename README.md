@@ -89,7 +89,7 @@ Therefore, if you intend to train using more than one GPU, you'll need to replac
 ## Testing
 
 
-Before starting the test, make sure that the model is in the directory _./SPADE/checkpoints/"Model_Name"_. Or if you downloaded the pretrained model from [here](https://www.dropbox.com/sh/b9gkygvqsn5m0me/AADYlopO4w1HU_2KKf2496p3a?dl=0), save it in the mentioned directory with the desired model `name` and you can download the specific test data for that model from [here]().
+Before starting the test, make sure that the model is in the directory _./SPADE/checkpoints/"Model_Name"_. Or if you downloaded the pretrained model from [here](https://www.dropbox.com/sh/b9gkygvqsn5m0me/AADYlopO4w1HU_2KKf2496p3a?dl=0), save it in the mentioned directory with the desired model `name` and you can download the specific test data for that model from [here](https://www.dropbox.com/scl/fi/047m4197keps1sgki2rp3/boxes.zip?rlkey=rp42ke6wnf0ijdihefgi5d249&dl=0).
 
 For testing the trained model, you can directly generate images from bounding boxes of various frames.
 This operation will produce images featuring only white cars, simulating a full 24-hour daylight cycle.

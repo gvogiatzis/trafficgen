@@ -1,11 +1,11 @@
 import sys
 import math
 
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
-from PyQt5.QtCore import Qt, QPoint, QRect
-from PyQt5.QtGui import QPixmap, QPen, QPainter, QColor, QBrush, QImage
-from PyQt5 import uic
-from PyQt5.QtWidgets import QMessageBox
+from PyQt6.QtWidgets import QApplication, QWidget, QPushButton
+from PyQt6.QtCore import Qt, QPoint, QRect
+from PyQt6.QtGui import QPixmap, QPen, QPainter, QColor, QBrush, QImage
+from PyQt6 import uic
+from PyQt6.QtWidgets import QMessageBox
 
 from shapely.geometry import Polygon
 
@@ -17,7 +17,15 @@ class MainWindow(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi("ui/gui.ui", self)
+
+        self.colour_buttons = None
+        self.alert = None
+        self.background_img = None
+        self.input_pixmap = None
+        self.output_pixmap = None
+        self.t_API = None
         self.init_ui()
+
         width = IMAGE_SIZE[0] * 2 + 100
         height = self.frameGeometry().height()
         self.setFixedSize(width, height)
@@ -29,7 +37,7 @@ class MainWindow(QWidget):
         column = 0
         self.colour_buttons = []
         for colour in COLOR_PALETTE:
-            button = QPushButton('', self, objectName=colour)
+            button = QPushButton(text='', parent=self, objectName=colour)
             button.setCheckable(True)
             button.setStyleSheet(f'background-color: {colour}')
             button.clicked.connect(self.onColourButtonClicked)
@@ -53,7 +61,6 @@ class MainWindow(QWidget):
         self.deleteButton.clicked.connect(self.onDeleteButtonClicked)
         self.deleteAllButton.clicked.connect(self.onDeleteAllButtonClicked)
         self.addTimeButton.clicked.connect(self.onAddTimeButtonClicked)
-        self.generateButton.clicked.connect(self.onGenerateButtonClicked)
         self.items = []
         self.tool = None
         self.tool_buttons = [self.addCarButton, self.addPersonButton, self.addVanButton, self.addBusButton,
@@ -79,7 +86,7 @@ class MainWindow(QWidget):
     #################################################################
     def mousePressEvent(self, event):
         if self.tool is None:
-            self.alert.exec_()
+            self.alert.exec()
         else:
             self.init_coords = self.widget2input(event.pos().x(), event.pos().y())
 
@@ -91,7 +98,7 @@ class MainWindow(QWidget):
         self.updateAndRedraw()
 
         painter = QPainter(self.input_pixmap)
-        painter.setBrush(Qt.black)
+        painter.setBrush(Qt.GlobalColor.black)
         painter.setOpacity(0.3)
         rect = QRect(self.init_coords, self.end_coords)
         painter.drawRect(rect.normalized())
@@ -136,6 +143,7 @@ class MainWindow(QWidget):
             print(f'Unhandled tool {self.tool}')
             sys.exit(-1)
         self.updateAndRedraw()
+        self.generate_output()
 
     # ###############################################################
     # Buttons tools events
@@ -194,28 +202,10 @@ class MainWindow(QWidget):
         self.items = []
         self.updateAndRedraw()
 
-    def onGenerateButtonClicked(self):
-        # Add this first element to the list since it is always detected (false positive as reference)
-        data = [[TrafficItem(conf=0.1,
-                             xywh=[0., 0., 0., 0.],
-                             cls=SPADE_LABELS['car'],
-                             visualFeatures=[0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
-                             dayTime=self.day_time)]]
-        data[0] = data[0] + self.items
-        output = self.t_API.generate_one_output(data)
-
-        if output is not None:
-            output = ((output + 1) * 255/2).astype(np.uint8)
-            height, width, channel = output.shape
-            bytesPerLine = 3 * width
-            image = QImage(output.data, width, height, bytesPerLine, QImage.Format_RGB888)
-            self.output_pixmap = QPixmap(image)
-            self.redraw()
-        self.generateButton.setChecked(False)
-
     def onAddTimeButtonClicked(self):
         self.day_time = [int(self.addDayTime.time().hour()), int(self.addDayTime.time().minute()), 0]
         print(self.day_time)
+        self.generate_output()
 
     # ###############################################################
     # Buttons colours events
@@ -245,13 +235,13 @@ class MainWindow(QWidget):
 
             cls_name = YOLO_NAMES[it.cls]
             if cls_name == "car":
-                painter.setBrush(Qt.red)
+                painter.setBrush(Qt.GlobalColor.red)
             elif cls_name == "truck":
-                painter.setBrush(Qt.blue)
+                painter.setBrush(Qt.GlobalColor.blue)
             elif cls_name == "person":
-                painter.setBrush(Qt.black)
+                painter.setBrush(Qt.GlobalColor.black)
             elif cls_name == "bus":
-                painter.setBrush(Qt.green)
+                painter.setBrush(Qt.GlobalColor.green)
             else:
                 print('Not valid item to draw')
                 sys.exit(0)
@@ -284,6 +274,24 @@ class MainWindow(QWidget):
         elif y_ret < 0 or y_ret >= self.input_pixmap.height():
             return QPoint()
         return QPoint(x_ret, y_ret)
+
+    def generate_output(self):
+        # Add this first element to the list since it is always detected (false positive as reference)
+        data = [[TrafficItem(conf=0.1,
+                             xywh=[0., 0., 0., 0.],
+                             cls=SPADE_LABELS['car'],
+                             visualFeatures=[0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+                             dayTime=self.day_time)]]
+        data[0] = data[0] + self.items
+        output = self.t_API.generate_one_output(data)
+
+        if output is not None:
+            output = ((output + 1) * 255/2).astype(np.uint8)
+            height, width, channel = output.shape
+            bytesPerLine = 3 * width
+            image = QImage(output.data, width, height, bytesPerLine, QImage.Format.Format_RGB888)
+            self.output_pixmap = QPixmap(image)
+            self.redraw()
 
 
 if __name__ == '__main__':
